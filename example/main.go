@@ -1,9 +1,3 @@
-# delayq
-Delayed queue in golang
-
-An example
-
-``` golang
 package main
 
 import (
@@ -42,4 +36,3 @@ func main() {
 		fmt.Println("Finished...")
 	}
 }
-```
