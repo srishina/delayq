@@ -72,7 +72,6 @@ func (o *outQueue) push(item interface{}) {
 }
 
 // shift moves the next available item from the queue into the out channel
-// if the out channel is free the function returns immediately.
 // the out channel value is returned to the user. must be locked by the caller
 func (o *outQueue) shift() {
 	if len(o.data) > 0 {
