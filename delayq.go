@@ -57,10 +57,7 @@ func newOutQueue() *outQueue {
 }
 
 func (o *outQueue) close() {
-	if o.out != nil {
-		close(o.out)
-		o.out = nil
-	}
+	close(o.out)
 }
 
 // push adds an item to the queue
@@ -143,10 +140,15 @@ func (dq *DelayQueue) run() {
 	timer := time.NewTimer(0)
 	defer timer.Stop()
 
+	var alreadyReadFromTimerC bool
 	nextTimer := func() {
 		if dq.itemHeap.Len() > 0 {
 			item := dq.itemHeap[0]
-			timer = time.NewTimer(item.end.Sub(time.Now()))
+			if !timer.Stop() && !alreadyReadFromTimerC {
+				<-timer.C
+			}
+			timer.Reset(item.end.Sub(time.Now()))
+			alreadyReadFromTimerC = false
 		}
 	}
 
@@ -158,6 +160,7 @@ func (dq *DelayQueue) run() {
 				nextTimer()
 			}
 		case <-timer.C:
+			alreadyReadFromTimerC = true
 			if len(dq.itemHeap) > 0 {
 				dq.outq.push(heap.Pop(&dq.itemHeap))
 				nextTimer()
